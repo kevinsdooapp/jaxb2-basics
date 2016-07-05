@@ -182,11 +182,13 @@ public class ElementWrapperPlugin extends AbstractModelPlugin {
 				new DummyPropertyInfoOrigin(), wrapperClassInfo,
 				wrapperPropertyInfo.getPrivateName(),
 				wrappedPropertyInfo.isCollection(),
+				wrappedPropertyInfo.isRequired(),
 				wrappedPropertyInfo.getTypeInfo(),
 				wrappedPropertyInfo.getElementName(),
 				wrapperPropertyInfo.getWrapperElementName(),
 				wrappedPropertyInfo.isNillable(),
-				wrappedPropertyInfo.getDefaultValue());
+				wrappedPropertyInfo.getDefaultValue(),
+				wrappedPropertyInfo.getDefaultValueNamespaceContext());
 
 		rootClassInfo.addProperty(propertyInfo);
 
@@ -212,7 +214,7 @@ public class ElementWrapperPlugin extends AbstractModelPlugin {
 				new DummyPropertyInfoOrigin(), wrapperClassInfo,
 				wrapperPropertyInfo.getPrivateName(),
 				wrappedPropertyInfo.isCollection(),
-
+				wrappedPropertyInfo.isRequired(),
 				wrappedPropertyInfo.getElementTypeInfos(),
 				wrapperPropertyInfo.getElementName());
 
@@ -240,13 +242,15 @@ public class ElementWrapperPlugin extends AbstractModelPlugin {
 				new DummyPropertyInfoOrigin(), wrapperClassInfo,
 				wrapperPropertyInfo.getPrivateName(),
 				wrappedPropertyInfo.isCollection(),
+				wrappedPropertyInfo.isRequired(),
 				wrappedPropertyInfo.getTypeInfo(),
 				wrappedPropertyInfo.getElementName(),
 				wrapperPropertyInfo.getElementName(),
 				wrappedPropertyInfo.isMixed(),
 				wrappedPropertyInfo.isDomAllowed(),
 				wrappedPropertyInfo.isTypedObjectAllowed(),
-				wrappedPropertyInfo.getDefaultValue());
+				wrappedPropertyInfo.getDefaultValue(),
+				wrappedPropertyInfo.getDefaultValueNamespaceContext());
 
 		rootClassInfo.addProperty(propertyInfo);
 
@@ -272,7 +276,7 @@ public class ElementWrapperPlugin extends AbstractModelPlugin {
 				new DummyPropertyInfoOrigin(), wrapperClassInfo,
 				wrapperPropertyInfo.getPrivateName(),
 				wrappedPropertyInfo.isCollection(),
-
+				wrappedPropertyInfo.isRequired(),
 				wrappedPropertyInfo.getElementTypeInfos(),
 				wrapperPropertyInfo.getElementName(),
 				wrappedPropertyInfo.isMixed(),

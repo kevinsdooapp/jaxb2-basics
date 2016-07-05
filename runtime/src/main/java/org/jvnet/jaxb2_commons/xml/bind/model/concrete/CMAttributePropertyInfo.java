@@ -1,5 +1,6 @@
 package org.jvnet.jaxb2_commons.xml.bind.model.concrete;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb2_commons.lang.Validate;
@@ -16,8 +17,10 @@ public class CMAttributePropertyInfo<T, C extends T> extends
 
 	public CMAttributePropertyInfo(MPropertyInfoOrigin origin,
 			MClassInfo<T, C> classInfo, String privateName,
-			MTypeInfo<T, C> typeInfo, QName attributeName) {
-		super(origin, classInfo, privateName, false, typeInfo);
+			MTypeInfo<T, C> typeInfo, QName attributeName, boolean required,
+			String defaultValue, NamespaceContext defaultValueNamespaceContext) {
+		super(origin, classInfo, privateName, false, typeInfo, required,
+				defaultValue, defaultValueNamespaceContext);
 		Validate.notNull(attributeName);
 		this.attributeName = attributeName;
 	}

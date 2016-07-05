@@ -9,33 +9,39 @@ import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb2_commons.lang.Validate;
 import org.jvnet.jaxb2_commons.xml.bind.model.MClassInfo;
+import org.jvnet.jaxb2_commons.xml.bind.model.MElement;
 import org.jvnet.jaxb2_commons.xml.bind.model.MElementRefsPropertyInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MElementTypeInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MPropertyInfoVisitor;
+import org.jvnet.jaxb2_commons.xml.bind.model.origin.MElementOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MPropertyInfoOrigin;
 
-public class CMElementRefsPropertyInfo<T, C extends T> extends CMPropertyInfo<T, C>
-		implements MElementRefsPropertyInfo<T, C> {
+public class CMElementRefsPropertyInfo<T, C extends T> extends
+		CMPropertyInfo<T, C> implements MElementRefsPropertyInfo<T, C> {
 
 	private final QName wrapperElementName;
 
-	private final List<MElementTypeInfo<T, C>> elementTypeInfos = new ArrayList<MElementTypeInfo<T, C>>();
-	private final List<MElementTypeInfo<T, C>> unmodifiableElementTypeInfos = Collections
+	private final List<MElement<T, C>> elementTypeInfos = new ArrayList<MElement<T, C>>();
+	private final List<MElement<T, C>> unmodifiableElementTypeInfos = Collections
 			.unmodifiableList(elementTypeInfos);
 
 	private final boolean mixed;
 	private final boolean domAllowed;
 	private final boolean typedObjectAllowed;
 
-	public CMElementRefsPropertyInfo(MPropertyInfoOrigin origin,
-			MClassInfo<T, C> classInfo, String privateName, boolean collection,
-			Collection<MElementTypeInfo<T, C>> elementTypeInfos,
+	public CMElementRefsPropertyInfo(
+			MPropertyInfoOrigin origin,
+			MClassInfo<T, C> classInfo,
+			String privateName,
+			boolean collection,
+			boolean required,
+			Collection<MElement<T, C>> elementTypeInfos,
 			QName wrapperElementName, boolean mixed, boolean domAllowed,
 			boolean typedObjectAllowed) {
-		super(origin, classInfo, privateName, collection);
+		super(origin, classInfo, privateName, collection, required);
 		Validate.noNullElements(elementTypeInfos);
-//		Validate.notEmpty(elementTypeInfos);
-//		Validate.isTrue(elementTypeInfos.size() > 1);
+		// Validate.notEmpty(elementTypeInfos);
+		// Validate.isTrue(elementTypeInfos.size() > 1);
 		this.elementTypeInfos.addAll(elementTypeInfos);
 		this.wrapperElementName = wrapperElementName;
 		this.mixed = mixed;
@@ -43,7 +49,7 @@ public class CMElementRefsPropertyInfo<T, C extends T> extends CMPropertyInfo<T,
 		this.typedObjectAllowed = typedObjectAllowed;
 	}
 
-	public List<MElementTypeInfo<T, C>> getElementTypeInfos() {
+	public List<MElement<T, C>> getElementTypeInfos() {
 		return unmodifiableElementTypeInfos;
 	}
 

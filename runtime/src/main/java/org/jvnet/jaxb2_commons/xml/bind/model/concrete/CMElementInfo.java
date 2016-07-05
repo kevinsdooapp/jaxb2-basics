@@ -2,9 +2,11 @@ package org.jvnet.jaxb2_commons.xml.bind.model.concrete;
 
 import java.text.MessageFormat;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb2_commons.lang.Validate;
+import org.jvnet.jaxb2_commons.xml.bind.model.MClassInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MContainer;
 import org.jvnet.jaxb2_commons.xml.bind.model.MElementInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MPackageInfo;
@@ -23,7 +25,7 @@ public class CMElementInfo<T, C extends T> implements MElementInfo<T, C> {
 
 	private final QName elementName;
 
-	private final MTypeInfo<T, C> scope;
+	private final MClassInfo<T, C> scope;
 
 	private final MTypeInfo<T, C> typeInfo;
 
@@ -31,10 +33,13 @@ public class CMElementInfo<T, C extends T> implements MElementInfo<T, C> {
 
 	private final String defaultValue;
 
+	private final NamespaceContext defaultValueNamespaceContext;
+
 	public CMElementInfo(MElementInfoOrigin origin, MPackageInfo _package,
 			MContainer container, String localName, QName elementName,
-			MTypeInfo<T, C> scope, MTypeInfo<T, C> typeInfo,
-			QName substitutionHead, String defaultValue) {
+			MClassInfo<T, C> scope, MTypeInfo<T, C> typeInfo,
+			QName substitutionHead, String defaultValue,
+			NamespaceContext defaultValueNamespaceContext) {
 		super();
 		Validate.notNull(origin);
 		Validate.notNull(elementName);
@@ -48,6 +53,7 @@ public class CMElementInfo<T, C extends T> implements MElementInfo<T, C> {
 		this.typeInfo = typeInfo;
 		this.substitutionHead = substitutionHead;
 		this.defaultValue = defaultValue;
+		this.defaultValueNamespaceContext = defaultValueNamespaceContext;
 	}
 
 	public MElementInfoOrigin getOrigin() {
@@ -87,7 +93,7 @@ public class CMElementInfo<T, C extends T> implements MElementInfo<T, C> {
 		return elementName;
 	}
 
-	public MTypeInfo<T, C> getScope() {
+	public MClassInfo<T, C> getScope() {
 		return scope;
 	}
 
@@ -107,6 +113,11 @@ public class CMElementInfo<T, C extends T> implements MElementInfo<T, C> {
 	@Override
 	public String getDefaultValue() {
 		return defaultValue;
+	}
+
+	@Override
+	public NamespaceContext getDefaultValueNamespaceContext() {
+		return defaultValueNamespaceContext;
 	}
 
 	public String toString() {

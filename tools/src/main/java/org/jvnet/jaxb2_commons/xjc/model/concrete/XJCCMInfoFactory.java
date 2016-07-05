@@ -5,8 +5,13 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.NamespaceContext;
+
 import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMClassInfoOrigin;
+import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMClassRefOrigin;
 import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMElementInfoOrigin;
+import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMElementOrigin;
+import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMElementTypeRefOrigin;
 import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMEnumConstantInfoOrigin;
 import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMEnumLeafInfoOrigin;
 import org.jvnet.jaxb2_commons.xjc.model.concrete.origin.XJCCMModelInfoOrigin;
@@ -23,7 +28,10 @@ import org.jvnet.jaxb2_commons.xml.bind.model.concrete.CMInfoFactory;
 import org.jvnet.jaxb2_commons.xml.bind.model.concrete.CMPackageInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.concrete.origin.CMPackageInfoOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MClassInfoOrigin;
+import org.jvnet.jaxb2_commons.xml.bind.model.origin.MClassRefOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MElementInfoOrigin;
+import org.jvnet.jaxb2_commons.xml.bind.model.origin.MElementOrigin;
+import org.jvnet.jaxb2_commons.xml.bind.model.origin.MElementTypeRefOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MEnumConstantInfoOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MEnumLeafInfoOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MModelInfoOrigin;
@@ -39,6 +47,8 @@ import com.sun.tools.xjc.model.CClassInfo;
 import com.sun.tools.xjc.model.CClassInfoParent;
 import com.sun.tools.xjc.model.CClassInfoParent.Visitor;
 import com.sun.tools.xjc.model.CClassRef;
+import com.sun.tools.xjc.model.CCustomizations;
+import com.sun.tools.xjc.model.CElement;
 import com.sun.tools.xjc.model.CElementInfo;
 import com.sun.tools.xjc.model.CElementPropertyInfo;
 import com.sun.tools.xjc.model.CEnumConstant;
@@ -46,16 +56,23 @@ import com.sun.tools.xjc.model.CEnumLeafInfo;
 import com.sun.tools.xjc.model.CPropertyInfo;
 import com.sun.tools.xjc.model.CReferencePropertyInfo;
 import com.sun.tools.xjc.model.CTypeInfo;
+import com.sun.tools.xjc.model.CTypeRef;
 import com.sun.tools.xjc.model.CValuePropertyInfo;
 import com.sun.tools.xjc.model.CWildcardTypeInfo;
 import com.sun.tools.xjc.model.Model;
 import com.sun.tools.xjc.model.nav.NClass;
 import com.sun.tools.xjc.model.nav.NType;
 import com.sun.tools.xjc.outline.Outline;
+import com.sun.tools.xjc.reader.xmlschema.bindinfo.BIEnum;
+import com.sun.tools.xjc.util.NamespaceContextAdapter;
+import com.sun.xml.bind.v2.model.core.TypeRef;
+import com.sun.xml.xsom.XSAttributeUse;
+import com.sun.xml.xsom.XSComponent;
+import com.sun.xml.xsom.XmlString;
 
 public class XJCCMInfoFactory
 		extends
-		CMInfoFactory<NType, NClass, Model, CTypeInfo, CBuiltinLeafInfo, CElementInfo, CEnumLeafInfo, CEnumConstant, CClassInfo, CPropertyInfo, CAttributePropertyInfo, CValuePropertyInfo, CElementPropertyInfo, CReferencePropertyInfo, CWildcardTypeInfo> {
+		CMInfoFactory<NType, NClass, Model, CTypeInfo, CBuiltinLeafInfo, CElement, CElementInfo, CEnumLeafInfo, CEnumConstant, CClassInfo, CPropertyInfo, CAttributePropertyInfo, CValuePropertyInfo, CElementPropertyInfo, CReferencePropertyInfo, CWildcardTypeInfo, CTypeRef> {
 
 	private final Map<CClassRef, MClassRef<NType, NClass>> classRefs =
 
@@ -119,10 +136,18 @@ public class XJCCMInfoFactory
 		};
 	}
 
-	protected MClassRef<NType, NClass> createClassRef(Class<?> _class) {
-		return new CMClassRef<NType, NClass>(getClazz(_class), _class,
-				getPackage(_class), getContainer(_class), getLocalName(_class));
-	}
+	// protected MClassRef<NType, NClass> createClassRef(Model model,
+	// Class<?> _class) {
+	//
+	// final BIEnum decl = new BIEnum();
+	// decl.ref = _class.getName();
+	// final CClassRef baseClass = new CClassRef(model,
+	// null, decl, new CCustomizations());
+	//
+	// return new CMClassRef<NType, NClass>(
+	// getClazz(_class), _class,
+	// getPackage(_class), getContainer(model, _class), getLocalName(_class));
+	// }
 
 	protected MClassRef<NType, NClass> getTypeInfo(CClassRef info) {
 
@@ -138,8 +163,9 @@ public class XJCCMInfoFactory
 
 	protected MClassRef<NType, NClass> createClassRef(CClassRef info) {
 		final NClass targetType = getClazz(info);
-		return new CMClassRef<NType, NClass>(targetType, loadClass(targetType),
-				getPackage(info), getContainer(info), getLocalName(info));
+		return new CMClassRef<NType, NClass>(createClassRefOrigin(info),
+				targetType, loadClass(targetType), getPackage(info),
+				getContainer(info), getLocalName(info));
 	}
 
 	@Override
@@ -177,7 +203,7 @@ public class XJCCMInfoFactory
 		}
 	}
 
-	private MPackageInfo getPackage(final Class _class) {
+	private MPackageInfo getPackage(final Class<?> _class) {
 		final Package _package = _class.getPackage();
 		return new CMPackageInfo(new CMPackageInfoOrigin(), _package.getName());
 	}
@@ -225,7 +251,11 @@ public class XJCCMInfoFactory
 		if (enclosingClass == null) {
 			return getPackage(_class);
 		} else {
-			return createClassRef(enclosingClass);
+			final BIEnum decl = new BIEnum();
+			decl.ref = _class.getName();
+			final CClassRef enclosingClassRef = new CClassRef(getTypeInfoSet(),
+					null, decl, new CCustomizations());
+			return createClassRef(enclosingClassRef);
 		}
 	}
 
@@ -327,6 +357,21 @@ public class XJCCMInfoFactory
 	}
 
 	@Override
+	protected MElementOrigin createElementOrigin(CElement info) {
+		return new XJCCMElementOrigin(info);
+	}
+
+	@Override
+	protected MElementTypeRefOrigin createElementTypeRefOrigin(
+			CElementPropertyInfo ep, CTypeRef typeRef) {
+		return new XJCCMElementTypeRefOrigin(ep, typeRef);
+	}
+
+	protected MClassRefOrigin createClassRefOrigin(CClassRef info) {
+		return new XJCCMClassRefOrigin(info);
+	}
+
+	@Override
 	protected MPropertyInfoOrigin createPropertyInfoOrigin(CPropertyInfo info) {
 		return new XJCCMPropertyInfoOrigin(info);
 	}
@@ -383,7 +428,8 @@ public class XJCCMInfoFactory
 	}
 
 	@Override
-	protected MClassTypeInfo<NType, NClass> createBaseTypeInfo(CClassInfo info) {
+	protected MClassTypeInfo<NType, NClass, ?> createBaseTypeInfo(
+			CClassInfo info) {
 		if (info.getBaseClass() != null) {
 			return getTypeInfo(info.getBaseClass());
 		} else if (info.getRefBaseClass() != null) {
@@ -399,6 +445,56 @@ public class XJCCMInfoFactory
 		try {
 			return Class.forName(name);
 		} catch (ClassNotFoundException cnfex) {
+			return null;
+		}
+	}
+
+	private XSAttributeUse getAttributeUse(CAttributePropertyInfo propertyInfo) {
+		final XSComponent schemaComponent = propertyInfo.getSchemaComponent();
+		if (schemaComponent instanceof XSAttributeUse) {
+			return (XSAttributeUse) schemaComponent;
+		} else {
+			return null;
+		}
+	}
+
+	protected String getDefaultValue(CAttributePropertyInfo propertyInfo) {
+
+		final XSAttributeUse attributeUse = getAttributeUse(propertyInfo);
+		if (attributeUse != null) {
+			final XmlString defaultValue = attributeUse.getDefaultValue();
+			if (defaultValue != null) {
+				return defaultValue.value;
+			}
+		}
+		return null;
+	}
+
+	protected NamespaceContext getDefaultValueNamespaceContext(
+			CAttributePropertyInfo propertyInfo) {
+		final XSAttributeUse attributeUse = getAttributeUse(propertyInfo);
+		if (attributeUse != null) {
+			final XmlString defaultValue = attributeUse.getDefaultValue();
+			if (defaultValue != null) {
+				return new NamespaceContextAdapter(defaultValue);
+			}
+		}
+		return null;
+
+	}
+
+	@Override
+	protected String getDefaultValue(TypeRef<NType, NClass> typeRef) {
+		return typeRef == null ? null : typeRef.getDefaultValue();
+	}
+
+	@Override
+	protected NamespaceContext getDefaultValueNamespaceContext(
+			TypeRef<NType, NClass> typeRef) {
+		if (typeRef instanceof CTypeRef) {
+			final CTypeRef cTypeRef = (CTypeRef) typeRef;
+			return new NamespaceContextAdapter(cTypeRef.defaultValue);
+		} else {
 			return null;
 		}
 	}

@@ -10,23 +10,26 @@ import javax.xml.namespace.QName;
 import org.jvnet.jaxb2_commons.lang.Validate;
 import org.jvnet.jaxb2_commons.xml.bind.model.MClassInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MElementTypeInfo;
+import org.jvnet.jaxb2_commons.xml.bind.model.MElementTypeRef;
 import org.jvnet.jaxb2_commons.xml.bind.model.MElementsPropertyInfo;
 import org.jvnet.jaxb2_commons.xml.bind.model.MPropertyInfoVisitor;
+import org.jvnet.jaxb2_commons.xml.bind.model.origin.MElementOrigin;
 import org.jvnet.jaxb2_commons.xml.bind.model.origin.MPropertyInfoOrigin;
 
-public class CMElementsPropertyInfo<T, C extends T> extends CMPropertyInfo<T, C>
-		implements MElementsPropertyInfo<T, C> {
+public class CMElementsPropertyInfo<T, C extends T> extends
+		CMPropertyInfo<T, C> implements MElementsPropertyInfo<T, C> {
 
-	private final List<MElementTypeInfo<T, C>> elementTypeInfos = new ArrayList<MElementTypeInfo<T, C>>();
-	private final List<MElementTypeInfo<T, C>> unmodifiableElementTypeInfos = Collections
+	private final List<MElementTypeRef<T, C>> elementTypeInfos = new ArrayList<MElementTypeRef<T, C>>();
+	private final List<MElementTypeRef<T, C>> unmodifiableElementTypeInfos = Collections
 			.unmodifiableList(elementTypeInfos);
 	private final QName wrapperElementName;
 
 	public CMElementsPropertyInfo(MPropertyInfoOrigin origin,
 			MClassInfo<T, C> classInfo, String privateName, boolean collection,
-			Collection<MElementTypeInfo<T, C>> elementTypeInfos,
+			boolean required,
+			Collection<MElementTypeRef<T, C>> elementTypeInfos,
 			QName wrapperElementName) {
-		super(origin, classInfo, privateName, collection);
+		super(origin, classInfo, privateName, collection, required);
 		Validate.noNullElements(elementTypeInfos);
 		Validate.notEmpty(elementTypeInfos);
 		Validate.isTrue(elementTypeInfos.size() > 1);
@@ -34,7 +37,7 @@ public class CMElementsPropertyInfo<T, C extends T> extends CMPropertyInfo<T, C>
 		this.wrapperElementName = wrapperElementName;
 	}
 
-	public List<MElementTypeInfo<T, C>> getElementTypeInfos() {
+	public List<MElementTypeRef<T, C>> getElementTypeInfos() {
 		return unmodifiableElementTypeInfos;
 	}
 
